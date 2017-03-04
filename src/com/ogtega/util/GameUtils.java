@@ -1,6 +1,7 @@
 package com.ogtega.util;
 
 import com.ogtega.model.Display;
+import com.ogtega.model.Player;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -11,10 +12,14 @@ public class GameUtils {
     private static final Scanner reader = new Scanner(System.in);
 
     public static String userPrompt(String str) {
+        String res = "";
 
         userPrint(str + " : ");
 
-        return serialize(reader.nextLine());
+        while(res.matches("")) {
+            res = reader.nextLine();
+        }
+        return serialize(res);
     }
 
     public static void userPrint(String str) {
@@ -27,8 +32,9 @@ public class GameUtils {
         return pre + c + post;
     }
 
-    public static void gameDisplay(Display input) {
-        System.out.print(input + " " + String.valueOf(input.getWhitelist()) + "\n");
+    public static void gameDisplay(Display input, Player player, Player bot) {
+        System.out.print(input + " " + String.valueOf(input.getBlacklist()) + "\n");
+        System.out.print("Player: " + player.getPoints() + " Bot: " + bot.getPoints() + "\n");
     }
 
     public static String serialize(String str) {

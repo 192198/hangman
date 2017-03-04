@@ -16,31 +16,35 @@ public class Main {
 
         init();
 
-        gameDisplay(display);
+        gameDisplay(display, player, bot);
         round();
     }
 
     public static void playerTurn() {
         while (true) {
-            if(!display.guess(userPrompt("guess: ").charAt(0))) {
+            if(!display.guess(Character.toLowerCase(userPrompt("guess").charAt(0)))) {
                 player.strike();
+                gameDisplay(display, player, bot);
                 break;
             }
 
-            gameDisplay(display);
-            userPrint(getSummary() + "\n");
+            player.point();
+            gameDisplay(display, player, bot);
         }
     }
 
     public static void botTurn() {
         while(true) {
 
-            char guess = bot.guess(display.getWhitelist());
+            char guess = bot.guess();
             userPrint("Bot guessed " + guess + "\n");
             if(!display.guess(guess)) {
-                gameDisplay(display);
                 bot.strike();
+                gameDisplay(display, player, bot);
                 break;
+            } else {
+                bot.point();
+                gameDisplay(display, player, bot);
             }
         }
     }
@@ -48,8 +52,13 @@ public class Main {
     private static void round() {
         while(true) {
             playerTurn();
+            if(display.complete() || player.getStrikes() > 8 && bot.getStrikes() > 8){
+                userPrint(getSummary() + "\n");
+                break;
+            }
             botTurn();
-            if(display.complete()){
+            if(display.complete() || player.getStrikes() > 8 && bot.getStrikes() > 8){
+                userPrint(getSummary() + "\n");
                 break;
             }
         }
@@ -58,8 +67,14 @@ public class Main {
     private static String getSummary() {
         String res = "";
 
-        res += (player.getStrikes() < bot.getStrikes()) ? "Congratulations you beat the bot by " + (bot.getStrikes() - player.getStrikes()) + " points!" :
-                "The bot won by " + (player.getStrikes() - bot.getStrikes()) + "...";
+        System.out.println(player.getPoints() - bot.getPoints());
+
+        if(player.getPoints() == bot.getPoints()) {
+            return("You tied with a bot...");
+        }
+
+        res += (bot.getPoints() < player.getPoints()) ? "Congratulations you beat the bot by " + (player.getPoints() - bot.getPoints()) + "!" :
+                "The bot won by " + (bot.getPoints() - player.getPoints()) + "...";
 
         return res;
     }
