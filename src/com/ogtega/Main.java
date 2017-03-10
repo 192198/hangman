@@ -14,50 +14,63 @@ public class Main {
 
     public static void main(String[] args) {
 
+        pageBreak();
         init();
-
         gameDisplay(display, player, bot);
-        round();
-    }
 
-    public static void playerTurn() {
-        while (true) {
-            if(!display.guess(Character.toLowerCase(userPrompt("guess").charAt(0)))) {
-                player.strike();
-                gameDisplay(display, player, bot);
+        while(true) {
+            round();
+
+            if(userPrompt("Play again (Y/n)").equalsIgnoreCase("n")) {
+                pageBreak();
+                userPrint("Thanks for playing!");
                 break;
             }
-
-            player.point();
+            display = new Display(randomWord());
+            clearLogs();
+            player.reset();
+            bot.reset();
+            pageBreak();
             gameDisplay(display, player, bot);
         }
     }
 
-    public static void botTurn() {
-        while(true) {
+    private static void playerTurn() {
+        while (true) {
+            if (!display.guess(Character.toLowerCase(userPrompt("guess").charAt(0)), player)) {
+                gameDisplay(display, player, bot);
+                break;
+            }
+
+            gameDisplay(display, player, bot);
+        }
+    }
+
+    private static void botTurn() {
+        while (true) {
 
             char guess = bot.guess();
-            userPrint("Bot guessed " + guess + "\n");
-            if(!display.guess(guess)) {
-                bot.strike();
+            userPrint("Bot guessed " + guess + "\n", true);
+            if (!display.guess(guess, bot)) {
                 gameDisplay(display, player, bot);
                 break;
             } else {
-                bot.point();
                 gameDisplay(display, player, bot);
             }
         }
     }
 
     private static void round() {
-        while(true) {
+        while (true) {
             playerTurn();
-            if(display.complete() || player.getStrikes() > 8 && bot.getStrikes() > 8){
+            if (display.complete()) {
+                gameDisplay(display, player, bot);
                 userPrint(getSummary() + "\n");
                 break;
             }
             botTurn();
-            if(display.complete() || player.getStrikes() > 8 && bot.getStrikes() > 8){
+            if (display.complete()) {
+                gameDisplay(display, player, bot);
                 userPrint(getSummary() + "\n");
                 break;
             }
@@ -67,10 +80,8 @@ public class Main {
     private static String getSummary() {
         String res = "";
 
-        System.out.println(player.getPoints() - bot.getPoints());
-
-        if(player.getPoints() == bot.getPoints()) {
-            return("You tied with a bot...");
+        if (player.getPoints() == bot.getPoints()) {
+            return ("You tied with a bot...");
         }
 
         res += (bot.getPoints() < player.getPoints()) ? "Congratulations you beat the bot by " + (player.getPoints() - bot.getPoints()) + "!" :
@@ -80,7 +91,7 @@ public class Main {
     }
 
     private static void init() {
-        display = new Display("magic-ass wand");
+        display = new Display(randomWord());
 
         bot = new Player("Bot", display);
         player = new Player(userPrompt("Enter your name"), display);

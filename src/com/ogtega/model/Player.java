@@ -6,7 +6,6 @@ import java.util.Random;
 public class Player {
 
     private int points;
-    private int strikes;
     private String name;
     private Display display;
 
@@ -14,26 +13,29 @@ public class Player {
 
     public Player(String name, Display display) {
         this.points = 0;
-        this.strikes = 0;
         this.name = name;
         this.display = display;
     }
 
     public char guess() {
-        updateWhitelist();
         return whitelist[new Random().nextInt(whitelist.length)];
     }
 
-    private void updateWhitelist() {
+    public void updateWhitelist() {
         String res = "";
 
-        for(char c : whitelist) {
-            if(!display.checkBlacklist(c)) {
+        for (char c : whitelist) {
+            if (!display.checkBlacklist(c)) {
                 res += c;
             }
         }
 
         whitelist = res.toCharArray();
+    }
+
+    public void reset() {
+        this.points = 0;
+        whitelist = "abcdefghijklmnopqrstuvwxyz".toCharArray();
     }
 
     public String getName() {
@@ -50,10 +52,5 @@ public class Player {
 
     public void strike() {
         points--;
-        strikes++;
-    }
-
-    public int getStrikes() {
-        return strikes;
     }
 }
